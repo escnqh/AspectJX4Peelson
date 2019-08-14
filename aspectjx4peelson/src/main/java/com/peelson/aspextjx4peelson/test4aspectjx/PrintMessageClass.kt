@@ -1,4 +1,4 @@
-package com.peelson.aspextjx4peelson
+package com.peelson.aspextjx4peelson.test4aspectjx
 
 import android.util.Log
 

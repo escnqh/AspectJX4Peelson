@@ -1,4 +1,4 @@
-package com.peelson.aspextjx4peelson
+package com.peelson.aspextjx4peelson.test4aspectjx
 
 import android.util.Log
 import org.aspectj.lang.ProceedingJoinPoint
@@ -13,7 +13,7 @@ import org.aspectj.lang.annotation.*
 class MessageAspect {
     private val TAG = "MessageAspect"
 
-    @Pointcut("call(* com.peelson.aspextjx4peelson.PrintMessageClass.printMessage(String))")
+    @Pointcut("call(* com.peelson.aspextjx4peelson.test4aspectjx.PrintMessageClass.printMessage(String))")
     fun cutPrintMessage() {
         Log.i(TAG, "cut function printMessage()")
     }
