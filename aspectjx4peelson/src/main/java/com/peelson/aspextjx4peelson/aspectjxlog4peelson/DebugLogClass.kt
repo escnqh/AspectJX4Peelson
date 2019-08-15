@@ -1,8 +1,8 @@
 package com.peelson.aspextjx4peelson.aspectjxlog4peelson
 
 import android.icu.lang.UCharacter.GraphemeClusterBreak.V
+import android.support.annotation.IntDef
 import android.util.Log
-import androidx.annotation.IntDef
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.DebugLogConfig.GLOBAL_TAG
 
 

@@ -1,7 +1,7 @@
 package com.peelson.aspectjxtestproject
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.support.v7.app.AppCompatActivity
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.D
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.DebugLog
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.debugValueLog
