@@ -3,7 +3,6 @@ package com.peelson.aspextjx4peelson.aspectjxlog4peelson
 import android.os.Build
 import android.os.Looper
 import android.os.Trace
-import android.util.Log
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
@@ -14,19 +13,13 @@ import org.aspectj.lang.reflect.MethodSignature
 import java.util.concurrent.TimeUnit
 
 /**
- *  @Description
+ *  @Description 切入注解了[DebugLog]的方法，打印日志信息
  *  @author peelson
  *  @date 2019/08/09
  */
 
 @Aspect
 class DebugLogAspect {
-    companion object {
-        const val TAG = "AspectJX4Peelson"
-        var showLog = true
-        var showSpendTime = true
-    }
-
 
     @Pointcut("within(@com.peelson.aspextjx4peelson.aspectjxlog4peelson.DebugLog *)")
     fun withinAnnotatedClass() {
@@ -54,26 +47,28 @@ class DebugLogAspect {
     @Around("(method() || constructor()) && @annotation(debugLog)")
     @Throws(Throwable::class)
     fun logAndExecute(joinPoint: ProceedingJoinPoint, debugLog: DebugLog): Any? {
-        enterMethod(joinPoint)
-
-        val startNanos = System.nanoTime()
-        val result = joinPoint.proceed()
-        val stopNanos = System.nanoTime()
-        val lengthMillis = TimeUnit.NANOSECONDS.toMillis(stopNanos - startNanos)
-        exitMethod(joinPoint, debugLog, lengthMillis)
-        return result
+        if (DebugLogConfig.showLog && debugLog.showLog && debugLog.logLevel >= DebugLogConfig.defaultShowLevel) {
+            enterMethod(joinPoint, debugLog)
+            val showSpendTime = DebugLogConfig.showSpendTime && debugLog.showSpendTime
+            val startNanos = if (showSpendTime) System.nanoTime() else 0
+            val result = joinPoint.proceed()
+            val stopNanos = if (showSpendTime) System.nanoTime() else 0
+            val lengthMillis = if (showSpendTime) TimeUnit.NANOSECONDS.toMillis(stopNanos - startNanos) else 0
+            exitMethod(joinPoint, debugLog, result, lengthMillis, showSpendTime)
+            return result
+        } else return joinPoint.proceed()
     }
 
     /**
      * 切入方法
      */
-    fun enterMethod(joinPoint: JoinPoint) {
+    fun enterMethod(joinPoint: JoinPoint, debugLog: DebugLog) {
         val codeSignature = joinPoint.signature as CodeSignature
         val methodName = codeSignature.name
         val parameterNames = codeSignature.parameterNames
         val parameterValues = joinPoint.args
-        val stringBuilder = getLogInfo(methodName, parameterNames, parameterValues)
-        Log.d(TAG, stringBuilder.toString())
+        val stringBuilder = getLogInfo(methodName, parameterNames, parameterValues, debugLog)
+        realLog(debugLog.logLevel, stringBuilder.toString())
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             val section = stringBuilder.toString().substring(2)
             Trace.beginSection(section)
@@ -83,7 +78,7 @@ class DebugLogAspect {
     /**
      * 切出方法
      */
-    fun exitMethod(joinPoint: JoinPoint, result: Any, lengthMillis: Long) {
+    fun exitMethod(joinPoint: JoinPoint, debugLog: DebugLog, result: Any?, lengthMillis: Long, showSpendTime: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.endSection()
         }
@@ -91,21 +86,30 @@ class DebugLogAspect {
         val hasReturnType =
             joinPoint.signature is MethodSignature && (joinPoint.signature as MethodSignature).returnType != Void.TYPE
         val stringBuilder = StringBuilder("<------- ")
-            .append(methodName)
-            .append(" [")
-            .append(lengthMillis)
-            .append("ms]")
+        if (debugLog.tag != "") stringBuilder.append(debugLog.tag.plus(": "))
+        stringBuilder.append(methodName)
+        if (showSpendTime) {
+            stringBuilder.append(" [")
+                .append(lengthMillis)
+                .append("ms]")
+        }
         if (hasReturnType) {
             stringBuilder.append("=").append(result)
         }
-        Log.d(TAG, stringBuilder.toString())
+        realLog(debugLog.logLevel, stringBuilder.toString())
     }
 
     /**
      * 拼接日志信息
      */
-    fun getLogInfo(methodName: String, parameterNames: Array<String>, parameterValues: Array<Any>): StringBuilder {
+    fun getLogInfo(
+        methodName: String,
+        parameterNames: Array<String>,
+        parameterValues: Array<Any>,
+        debugLog: DebugLog
+    ): StringBuilder {
         val stringBuilder = StringBuilder("-------> ")
+        if (debugLog.tag != "") stringBuilder.append(debugLog.tag.plus(": "))
         stringBuilder.append(methodName).append('(')
         val index = parameterNames.size
         for (i in 0 until index) {

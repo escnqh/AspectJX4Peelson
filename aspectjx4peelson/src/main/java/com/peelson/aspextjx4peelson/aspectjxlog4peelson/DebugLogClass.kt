@@ -1,11 +1,13 @@
 package com.peelson.aspextjx4peelson.aspectjxlog4peelson
 
 import android.icu.lang.UCharacter.GraphemeClusterBreak.V
+import android.util.Log
 import androidx.annotation.IntDef
+import com.peelson.aspextjx4peelson.aspectjxlog4peelson.DebugLogConfig.GLOBAL_TAG
 
 
 /**
- *  @Description
+ *  @Description 注解@DebugLog及其他方法
  *  @author peelson
  *  @date 2019/08/09
  */
@@ -14,26 +16,59 @@ import androidx.annotation.IntDef
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
 annotation class DebugLog(
-    val showLog: Boolean = true,
-    @LogLevel val logLevel: Int = D,
-    val showSpendTime: Boolean = true,
+    // 单个注解粒度配置
+    // 补充日志信息（再次过滤）
     val tag: String = "",
-    val message: String = ""
+    // 当前日志级别
+    @LogLevel val logLevel: Int = D,
+    // 是否显示当前日志
+    val showLog: Boolean = true,
+    // 是否打印当前耗时
+    val showSpendTime: Boolean = true
 )
 
 /**
  * Debug log level
  */
-const val V = 0
-const val D = 1
-const val W = 2
-const val E = 3
+const val I = 0
+const val V = 1
+const val D = 2
+const val W = 3
+const val E = 4
 
-@IntDef(V, D, W, E)
+@IntDef(I, V, D, W, E)
 @Retention(AnnotationRetention.SOURCE)
 annotation class LogLevel
 
-@DebugLog(true, D, false)
-fun Any.ValueLog() {
+/**
+ * 单个对象打印值日志，受全局配置影响，Any的扩展函数，可以在任意地方调用
+ */
+fun Any.debugValueLog(name: String, value: String, @LogLevel level: Int = D) {
+    if (DebugLogConfig.showLog) {
+        realLog(level, "$name = $value")
+    }
+}
+
+/**
+ * 真实地在打Log
+ */
+fun realLog(@LogLevel level: Int = D, message: String) {
+    when (level) {
+        I -> {
+            Log.i(GLOBAL_TAG, message)
+        }
+        V -> {
+            Log.v(GLOBAL_TAG, message)
+        }
+        D -> {
+            Log.d(GLOBAL_TAG, message)
+        }
+        W -> {
+            Log.w(GLOBAL_TAG, message)
+        }
+        E -> {
+            Log.e(GLOBAL_TAG, message)
+        }
+    }
 }
 
