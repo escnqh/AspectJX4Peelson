@@ -1,6 +1,13 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.meitu.maven'
+
+easyMaven {
+    artifactId = 'aspectjx-log'
+}
+
+apply plugin: 'com.meitu.maven-publish'
 
 android {
     compileSdkVersion 29

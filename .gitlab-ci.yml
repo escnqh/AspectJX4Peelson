@@ -1,0 +1,66 @@
+# 指定运行环境镜像
+image: meitu/android:latest
+
+# 定义环境变量
+variables:
+  # 指定gradle当前用户数据目录，使其可以通过CI缓存
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+before_script:
+  # 确保./gradlew文件具有可执行权限.
+  - chmod +x ./gradlew
+
+# 缓存gradle数据，加快编译速度.
+cache:
+  key: "gradle"
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+# 定义编译步骤.
+stages:
+  - test
+  - deploy
+
+# 测试任务.
+test:
+  stage: test
+  script:
+    - ./gradlew check
+  # 限定docker runner(必须)
+  tags:
+    - docker
+  # 保留测试报告，可根据实际项目需要进行路径调整.
+  artifacts:
+    when: always
+    paths:
+      - ./*/build/reports
+
+# 发布任务.
+deploy:
+  stage: deploy
+  variables:
+    # 通过环境变量将发布版本设置为当前tag名称.
+    MAVEN_VERSION: "$CI_BUILD_TAG"
+  # 发布执行命令，可以根据实际发布需要进行配置,支持多条命令.
+  script:
+    - ./gradlew uploadArchives
+  # 仅限tags，而且通过正则过滤仅支持：1.0.0和1.1.0-beta-1格式的tag名.
+  only:
+    - /^\d+\.\d+\.\d+(-beta-?\d+)?$/
+  except:
+    - api
+    - branches
+    - external
+    - schedules
+    - triggers
+    - web
+  # 限定docker runner(必须)
+  tags:
+    - docker
+  # 保留mapping.txt、usage.txt文件, 可根据需要进行路径调整.
+  artifacts:
+    when: always
+    paths:
+      - ./*/build/outputs/mapping/release/mapping.txt
+      - ./*/build/outputs/mapping/release/usage.txt
