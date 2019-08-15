@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.D
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.DebugLog
 import com.peelson.aspextjx4peelson.aspectjxlog4peelson.debugValueLog
+import com.peelson.aspextjx4peelson.aspectjxlog4peelson.shouldShowDebugLog
 import com.peelson.aspextjx4peelson.test4aspectjx.PrintMessageClass
 
 class MainActivity : AppCompatActivity() {
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     @DebugLog("find me", D, true, true)
     fun testFun() {
         val s = "nqh"
-        debugValueLog("s", s.toString())
+        shouldShowDebugLog()?.debugValueLog("s", s.toString())
         val messagePrinter = PrintMessageClass()
         messagePrinter.printMessage(s)
     }

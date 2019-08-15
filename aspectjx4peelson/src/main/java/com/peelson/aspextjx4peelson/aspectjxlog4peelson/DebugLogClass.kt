@@ -50,6 +50,13 @@ fun Any.debugValueLog(name: String, value: String, @LogLevel level: Int = D) {
 }
 
 /**
+ * 先调用此方法可以短路打印日志，节省性能
+ */
+fun Any.shouldShowDebugLog(): Any? {
+    return if (DebugLogConfig.showLog) this else null
+}
+
+/**
  * 真实地在打Log
  */
 fun realLog(@LogLevel level: Int = D, message: String) {

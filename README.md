@@ -48,6 +48,10 @@ const val E = 4
 
 ```kotlin
 debugValueLog(name,value)
+/**
+ * 先调用此方法可以短路打印日志，节省性能
+ */
+shouldShowDebugLog()?.debugValueLog("s", s.toString())
 ```
 
 示例：
