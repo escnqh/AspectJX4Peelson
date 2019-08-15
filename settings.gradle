@@ -1,1 +1,1 @@
-include ':app', ':LogWithAspectJX4Peelson', ':aspectjx4peelson'
+include ':app', ':aspectjx4peelson'
