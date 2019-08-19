@@ -1,7 +1,9 @@
 # AspectJXProject
 
 基于[AspectJX（HujiangTechnology/gradle_plugin_android_aspectjx](https://github.com/HujiangTechnology/gradle_plugin_android_aspectjx)实现的工具集合
-** Demo运行不了的原因可能是要把关于meitu的一些CI依赖移除 **
+
+**Demo运行不了的原因可能是要把关于meitu的一些CI依赖移除**
+
 #### 1 aspectjxlog
 
 切入注解`@DebugLog() `修饰的方法，打印日志信息
